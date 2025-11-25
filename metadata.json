@@ -1,0 +1,7 @@
+{
+  "name": "Thailand Tourist attraction planner with Maps Live",
+  "description": "Experience Gemini and Grounding with Google Maps' ability to engage in real-time, voice-driven conversations for trip planning using natural language. Adapted for Thailand Street art tourist attractions",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
