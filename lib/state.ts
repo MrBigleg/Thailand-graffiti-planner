@@ -14,6 +14,8 @@ const toolsets: Record<Template, FunctionCall[]> = {
 import {
   SYSTEM_INSTRUCTIONS,
   SCAVENGER_HUNT_PROMPT,
+  CITY_EXPLORER_PROMPT,
+  ITINERARY_PLANNER_PERSONA,
 } from './constants.ts';
 const systemPrompts: Record<Template, string> = {
   'itinerary-planner': SYSTEM_INSTRUCTIONS,
@@ -35,10 +37,40 @@ import { Map3DCameraProps } from '@/components/map-3d';
 export const SCAVENGER_HUNT_PERSONA =
   'ClueMaster Cory, the Scavenger Hunt Creator';
 
-export const personas: Record<string, { prompt: string; voice: string }> = {
+export const CITY_EXPLORER_PERSONA = 'City Explorer';
+
+export interface Persona {
+  title: string;
+  prompt: string;
+  voice: string;
+  description: string;
+  initialMessage: string;
+}
+
+export const personas: Record<string, Persona> = {
+  [ITINERARY_PLANNER_PERSONA]: {
+    title: 'Interactive Day Planner',
+    prompt: SYSTEM_INSTRUCTIONS,
+    voice: 'Zephyr',
+    description:
+      "This interactive demo highlights Gemini and Grounding with Google Maps' ability to engage in real-time, voice-driven conversations. Plan a day trip using natural language and experience how Gemini leverages Google Maps to deliver accurate, up-to-the-minute information.",
+    initialMessage: "Let's plan a trip to Chicago.",
+  },
   [SCAVENGER_HUNT_PERSONA]: {
+    title: 'Scavenger Hunt',
     prompt: SCAVENGER_HUNT_PROMPT,
     voice: 'Puck',
+    description:
+      'A playful game master that guides you through a city with riddles and clues. Solve the riddles to reveal locations on the map.',
+    initialMessage: "I'm ready for a scavenger hunt in New York!",
+  },
+  [CITY_EXPLORER_PERSONA]: {
+    title: 'City Explorer',
+    prompt: CITY_EXPLORER_PROMPT,
+    voice: 'Zephyr',
+    description:
+      'Visualize specific places on the map. Just tell the AI which city and what places you want to see, and it will frame them for you.',
+    initialMessage: 'Show me the Space Needle and Pike Place Market in Seattle.',
   },
 };
 
@@ -61,7 +93,7 @@ export const useSettings = create<{
   model: DEFAULT_LIVE_API_MODEL,
   voice: DEFAULT_VOICE,
   isEasterEggMode: false,
-  activePersona: SCAVENGER_HUNT_PERSONA,
+  activePersona: ITINERARY_PLANNER_PERSONA,
   setSystemPrompt: prompt => set({ systemPrompt: prompt }),
   setModel: model => set({ model }),
   setVoice: voice => set({ voice }),
@@ -251,16 +283,20 @@ export const useMapStore = create<{
   markers: MapMarker[];
   cameraTarget: Map3DCameraProps | null;
   preventAutoFrame: boolean;
+  framingOffset: number;
   setMarkers: (markers: MapMarker[]) => void;
   clearMarkers: () => void;
   setCameraTarget: (target: Map3DCameraProps | null) => void;
   setPreventAutoFrame: (prevent: boolean) => void;
+  setFramingOffset: (offset: number) => void;
 }>(set => ({
   markers: [],
   cameraTarget: null,
   preventAutoFrame: false,
+  framingOffset: 1000,
   setMarkers: markers => set({ markers }),
   clearMarkers: () => set({ markers: [] }),
   setCameraTarget: target => set({ cameraTarget: target }),
   setPreventAutoFrame: prevent => set({ preventAutoFrame: prevent }),
+  setFramingOffset: offset => set({ framingOffset: offset }),
 }));

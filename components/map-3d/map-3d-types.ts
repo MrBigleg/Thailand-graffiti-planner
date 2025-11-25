@@ -216,28 +216,3 @@ declare global {
     }
   }
 }
-
-// add the <gmp-map-3d> custom-element to the JSX.IntrinsicElements
-// interface, so it can be used in jsx
-declare module 'react' {
-  namespace JSX {
-    interface IntrinsicElements {
-      ['gmp-map-3d']: CustomElement<
-        google.maps.maps3d.Map3DElement,
-        google.maps.maps3d.Map3DElement
-      >;
-    }
-  }
-}
-
-// a helper type for CustomElement definitions
-type CustomElement<TElem, TAttr> = Partial<
-  TAttr &
-    // FIX: Use fully-qualified type names since the import was removed.
-    React.DOMAttributes<TElem> &
-    React.RefAttributes<TElem> & {
-      // for whatever reason, anything else doesn't work as children
-      // of a custom element, so we allow `any` here
-      children: any;
-    }
->;

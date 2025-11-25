@@ -4,7 +4,7 @@
 */
 // FIX: Added missing React imports.
 import React, { useEffect, useMemo } from 'react';
-import { useSettings, useUI, useLogStore, useTools, personas } from '@/lib/state';
+import { useSettings, useUI, useLogStore, useTools, personas, SCAVENGER_HUNT_PERSONA, useMapStore } from '@/lib/state';
 import c from 'classnames';
 import {
   AVAILABLE_VOICES_FULL,
@@ -40,6 +40,7 @@ export default function Sidebar() {
     setPersona,
   } = useSettings();
   const { connected } = useLiveAPIContext();
+  const { framingOffset, setFramingOffset } = useMapStore();
 
   const availableVoices = useMemo(() => {
     return MODELS_WITH_LIMITED_VOICES.includes(model)
@@ -84,6 +85,12 @@ export default function Sidebar() {
     URL.revokeObjectURL(url);
   };
 
+  const filteredPersonas = useMemo(() => {
+    return Object.keys(personas).filter(
+      p => isEasterEggMode || p !== SCAVENGER_HUNT_PERSONA
+    );
+  }, [isEasterEggMode]);
+
   return (
     <>
       <aside className={c('sidebar', { open: isSidebarOpen })}>
@@ -96,21 +103,19 @@ export default function Sidebar() {
         <div className="sidebar-content">
           <div className="sidebar-section">
             <fieldset disabled={connected}>
-              {isEasterEggMode && (
-                <label>
-                  Persona
-                  <select
-                    value={activePersona}
-                    onChange={e => setPersona(e.target.value)}
-                  >
-                    {Object.keys(personas).map(personaName => (
-                      <option key={personaName} value={personaName}>
-                        {personaName}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
+              <label>
+                Persona
+                <select
+                  value={activePersona}
+                  onChange={e => setPersona(e.target.value)}
+                >
+                  {filteredPersonas.map(personaName => (
+                    <option key={personaName} value={personaName}>
+                      {personaName}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label>
                 System Prompt
                 <textarea
@@ -150,6 +155,32 @@ export default function Sidebar() {
                 </select>
               </label>
             </fieldset>
+            <label>
+              Zoom Level
+              <div className="button-group">
+                <button 
+                  className={c({active: framingOffset === 0})} 
+                  onClick={() => setFramingOffset(0)}
+                  title="Close zoom (0 offset)"
+                >
+                  Close
+                </button>
+                <button 
+                  className={c({active: framingOffset === 1000})} 
+                  onClick={() => setFramingOffset(1000)}
+                  title="Medium zoom (1000 offset)"
+                >
+                  Medium
+                </button>
+                <button 
+                  className={c({active: framingOffset === 5000})} 
+                  onClick={() => setFramingOffset(5000)}
+                  title="Far zoom (5000 offset)"
+                >
+                  Far
+                </button>
+              </div>
+            </label>
             <div className="settings-toggle-item">
               <label className="tool-checkbox-wrapper">
                 <input
