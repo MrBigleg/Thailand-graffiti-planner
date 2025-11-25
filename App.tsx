@@ -62,7 +62,7 @@ function AppComponent() {
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
   const [viewProps, setViewProps] = useState(INITIAL_VIEW_PROPS);
   // Subscribe to marker and camera state from the global Zustand store.
-  const { markers, cameraTarget, setCameraTarget, preventAutoFrame } = useMapStore();
+  const { markers, cameraTarget, setCameraTarget, preventAutoFrame, framingOffset } = useMapStore();
   const mapController = useRef<MapController | null>(null);
 
   const maps3dLib = useMapsLibrary('maps3d');
@@ -184,9 +184,9 @@ function AppComponent() {
     const allEntities = [...markerPositions].map(p => ({ position: p }));
 
     if (allEntities.length > 0 && !preventAutoFrame) {
-      controller.frameEntities(allEntities, padding);
+      controller.frameEntities(allEntities, padding, framingOffset);
     }
-  }, [markers, padding, preventAutoFrame]); // Re-run when markers or padding change
+  }, [markers, padding, preventAutoFrame, framingOffset]); // Re-run when markers or padding change
 
 
   // Effect: Reactively handle direct camera movement requests.

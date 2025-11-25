@@ -67,6 +67,38 @@
   background-color: var(--Blue-400);
 }
 
+.persona-selector {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--Neutral-30);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.persona-selector label {
+  font-size: 14px;
+  color: var(--Neutral-80);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.persona-selector select {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--Neutral-20);
+  border: 1px solid var(--Neutral-30);
+  color: white;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.persona-selector select:focus {
+  outline: 2px solid var(--accent-blue);
+  border-color: transparent;
+}
+
 @media (max-width: 768px) {
   .popup-content {
     padding: 20px;

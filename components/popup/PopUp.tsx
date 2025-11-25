@@ -4,22 +4,45 @@
 */
 
 // FIX: Added FC to the React import.
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 import './PopUp.css';
+import { useSettings, personas, SCAVENGER_HUNT_PERSONA } from '@/lib/state';
 
 interface PopUpProps {
   onClose: () => void;
 }
 
 const PopUp: React.FC<PopUpProps> = ({ onClose }) => {
+  const { activePersona, setPersona, isEasterEggMode } = useSettings();
+
+  const filteredPersonas = useMemo(() => {
+    return Object.keys(personas).filter(
+      p => isEasterEggMode || p !== SCAVENGER_HUNT_PERSONA
+    );
+  }, [isEasterEggMode]);
+
+  const currentPersona = personas[activePersona] || personas[Object.keys(personas)[0]];
+
   return (
     <div className="popup-overlay">
       <div className="popup-content">
-        <h2>Welcome to the Interactive Day Planner</h2>
+        <div className="persona-selector">
+          <label>Choose your experience:</label>
+          <select 
+            value={activePersona} 
+            onChange={(e) => setPersona(e.target.value)}
+          >
+            {filteredPersonas.map(p => (
+              <option key={p} value={p}>{personas[p].title}</option>
+            ))}
+          </select>
+        </div>
+        
+        <h2>{currentPersona.title}</h2>
+        
         <div className="popup-scrollable-content">
           <p>
-            This interactive demo highlights Gemini and Grounding with Google Maps' ability to engage in real-time, voice-driven conversations.
-Plan a day trip using natural language and experience how Gemini leverages Google Maps to deliver accurate, up-to-the-minute information.
+            {currentPersona.description}
           </p>
           <p>To get started:</p>
           <ol>
@@ -30,7 +53,7 @@ Plan a day trip using natural language and experience how Gemini leverages Googl
             <li>
               <span className="icon">record_voice_over</span>
               <div><strong>Speak naturally &nbsp;</strong>to plan your trip. Try saying,
-              "Let's plan a trip to Chicago."</div>
+              "{currentPersona.initialMessage}"</div>
             </li>
             <li>
               <span className="icon">map</span>
@@ -49,7 +72,7 @@ Plan a day trip using natural language and experience how Gemini leverages Googl
             </li>
           </ol>
         </div>
-        <button onClick={onClose}>Got It, Let's Plan!</button>
+        <button onClick={onClose}>Got It, Let's Go!</button>
       </div>
     </div>
   );

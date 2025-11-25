@@ -96,10 +96,12 @@ export class MapController {
    * Calculates the optimal camera view to frame a set of entities and animates to it.
    * @param entities - An array of entities to frame (must have a `position` property).
    * @param padding - The padding to apply around the entities.
+   * @param rangeOffset - Optional offset to add to the calculated range (default 1000).
    */
   async frameEntities(
     entities: { position: { lat: number; lng: number } }[],
     padding: [number, number, number, number],
+    rangeOffset: number = 1000,
   ) {
     if (entities.length === 0) return;
 
@@ -117,7 +119,7 @@ export class MapController {
         lng: cameraProps.lng,
         altitude: cameraProps.altitude,
       },
-      range: cameraProps.range + 1000, // Add a bit of extra range
+      range: cameraProps.range + rangeOffset,
       heading: cameraProps.heading,
       tilt: cameraProps.tilt,
       roll: 0,

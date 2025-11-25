@@ -891,6 +891,32 @@ gmp-place-details-compact {
   font-size: 20px;
 }
 
+.button-group {
+  display: flex;
+  gap: 8px;
+  background: var(--Neutral-15);
+  padding: 4px;
+  border-radius: 8px;
+}
+.button-group button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--Neutral-60);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+}
+.button-group button.active {
+  background: var(--Neutral-30);
+  color: var(--text);
+  border-color: var(--Neutral-50);
+}
+.button-group button:hover:not(.active) {
+  background: var(--Neutral-20);
+}
+
 .error-screen {
   display: flex;
   flex-direction: column;

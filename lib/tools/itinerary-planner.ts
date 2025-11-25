@@ -4,111 +4,105 @@
 */
 
 import { FunctionCall } from '../state';
-import { FunctionResponseScheduling } from '@google/genai';
+import { Type } from '@google/genai';
 
 export const itineraryPlannerTools: FunctionCall[] = [
   {
     name: 'mapsGrounding',
-    description: `
-    A versatile tool that leverages Google Maps data to generate contextual information and creative content about places. It can be used for two primary purposes:
+    description: `A versatile tool that leverages Google Maps data to generate contextual information and creative content about places. It can be used for two primary purposes:
 
     1.  **For Itinerary Planning:** Find and summarize information about places like restaurants, museums, or parks. Use a straightforward query to get factual summaries of top results.
         -   **Example Query:** "fun museums in Paris" or "best pizza in Brooklyn".
 
-    2.  **For Creative Content:** Generate engaging narratives, riddles, or scavenger hunt clues based on real-world location data. Use a descriptive query combined with a custom 'systemInstruction' to guide the creative output.
-        -   **Example Query:** "a famous historical restaurant in Paris".
-
-    Args:
-        query: A string describing the search parameters. You **MUST be as precise as possible**, include as much location data that you can such as city, state and/or country to reduce ambiguous results.
-        markerBehavior: (Optional) Controls map markers. "mentioned" (default), "all", or "none".
-        systemInstruction: (Optional) A string that provides a persona and instructions for the tool's output. Use this for creative tasks to ensure the response is formatted as a clue, riddle, etc.
-        enableWidget: (Optional) A boolean to control whether the interactive maps widget is enabled for the response. Defaults to true. Set to false for simple text-only responses or when the UI cannot support the widget.
-
-    Returns:
-        A response from the maps grounding agent. The content and tone of the response will be shaped by the query and the optional 'systemInstruction'.
-    `,
+    2.  **For Creative Content:** Generate engaging narratives, riddles, or scavenger hunt clues based on real-world location data. Use a descriptive query combined with a custom 'systemInstruction' to guide the tone and content.`,
     parameters: {
-      type: 'OBJECT',
+      type: Type.OBJECT,
       properties: {
         query: {
-          type: 'STRING',
+          type: Type.STRING,
+          description:
+            "The search query for Google Maps. Can be a place name, category, or a descriptive request.",
         },
         markerBehavior: {
-          type: 'STRING',
+          type: Type.STRING,
           description:
-            'Controls which results get markers. "mentioned" for places in the text response, "all" for all search results, or "none" for no markers.',
+            "Controls how markers are added to the map. 'mentioned' (default) adds markers for places explicitly named in the response. 'all' adds markers for all search results. 'none' adds no markers.",
           enum: ['mentioned', 'all', 'none'],
         },
         systemInstruction: {
-          type: 'STRING',
+          type: Type.STRING,
           description:
-            "A string that provides a persona and instructions for the tool's output. Use this for creative tasks to ensure the response is formatted as a clue, riddle, etc.",
+            "Optional system instructions for the grounding tool to customize the output format or tone.",
         },
         enableWidget: {
-          type: 'BOOLEAN',
-          description:
-            'A boolean to control whether the interactive maps widget is enabled for the response. Defaults to true. Set to false for simple text-only responses or when the UI cannot support the widget.',
-        },
+            type: Type.BOOLEAN,
+            description: "Whether to display the Google Maps Place Widget (default: true).",
+        }
       },
       required: ['query'],
     },
     isEnabled: true,
-    scheduling: FunctionResponseScheduling.INTERRUPT,
   },
   {
     name: 'frameEstablishingShot',
-    description: 'Call this function to display a city or location on the map. Provide either a location name to geocode, or a specific latitude and longitude. This provides a wide, establishing shot of the area.',
+    description:
+      "Moves the camera to a high-level establishing view of a specific location (city, state, or landmark). Useful for starting a tour or changing the general region.",
     parameters: {
-      type: 'OBJECT',
+      type: Type.OBJECT,
       properties: {
         geocode: {
-          type: 'STRING',
-          description: 'The name of the location to look up (e.g., "Paris, France"). You **MUST be as precise as possible**, include as much location data that you can such as city, state and/or country to reduce ambiguous results.'
+          type: Type.STRING,
+          description:
+            "The address or name of the location to frame (e.g., 'Chicago, IL', 'Paris, France').",
         },
         lat: {
-          type: 'NUMBER',
-          description: 'The latitude of the location.'
+          type: Type.NUMBER,
+          description: 'The latitude of the location (optional if geocode is provided).',
         },
         lng: {
-          type: 'NUMBER',
-          description: 'The longitude of the location.'
+          type: Type.NUMBER,
+          description: 'The longitude of the location (optional if geocode is provided).',
         },
       },
     },
     isEnabled: true,
-    scheduling: FunctionResponseScheduling.INTERRUPT,
   },
   {
     name: 'frameLocations',
-    description: 'Frames multiple locations on the map, ensuring all are visible. Provide either an array of location names to geocode, or an array of specific latitude/longitude points. Can optionally add markers for these locations. When relying on geocoding you **MUST be as precise as possible**, include as much location data that you can such as city, state and/or country to reduce ambiguous results.',
+    description:
+      "Adjusts the map view to frame a list of specific locations or addresses. Can also add markers to these locations. Use this to highlight an itinerary or a set of search results.",
     parameters: {
-      type: 'OBJECT',
+      type: Type.OBJECT,
       properties: {
         locations: {
-          type: 'ARRAY',
+          type: Type.ARRAY,
           items: {
-            type: 'OBJECT',
+            type: Type.OBJECT,
             properties: {
-              lat: { type: 'NUMBER' },
-              lng: { type: 'NUMBER' },
+              lat: { type: Type.NUMBER },
+              lng: { type: Type.NUMBER },
             },
             required: ['lat', 'lng'],
           },
+          description: 'List of explicit lat/lng coordinates to frame.',
         },
         geocode: {
-          type: 'ARRAY',
-          description: 'An array of location names to look up (e.g., ["Eiffel Tower", "Louvre Museum"]).',
-          items: {
-            type: 'STRING',
-          },
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+          description: 'List of addresses or place names to geocode and frame.',
         },
         markers: {
-          type: 'BOOLEAN',
-          description: 'If true, adds markers to the map for each location being framed.'
+          type: Type.BOOLEAN,
+          description:
+            'If true, adds markers to the map for the framed locations. If false, just moves the camera.',
+        },
+        zoomLevel: {
+            type: Type.STRING,
+            description: "Target zoom level for the view: 'close' (street level), 'medium' (neighborhood), 'far' (city view). Default is 'medium'.",
+            enum: ['close', 'medium', 'far']
         }
       },
     },
     isEnabled: true,
-    scheduling: FunctionResponseScheduling.INTERRUPT,
   },
 ];

@@ -154,7 +154,9 @@ function updateMapStateWithMarkers(
     });
   } else {
     // Default behavior: just set the markers and let the App component auto-frame them.
-    const { setPreventAutoFrame, setMarkers } = useMapStore.getState();
+    // Reset framingOffset to default for standard behavior.
+    const { setPreventAutoFrame, setMarkers, setFramingOffset } = useMapStore.getState();
+    setFramingOffset(1000);
     setPreventAutoFrame(false);
     setMarkers(markers);
   }
@@ -304,6 +306,7 @@ const frameLocations: ToolImplementation = async (args, context) => {
     locations: explicitLocations,
     geocode,
     markers: shouldCreateMarkers,
+    zoomLevel = 'medium', // Default to medium
   } = args;
   const { elevationLib, padding, geocoder } = context;
 
@@ -364,6 +367,11 @@ const frameLocations: ToolImplementation = async (args, context) => {
     return 'Could not find any valid locations to frame.';
   }
 
+  // Calculate range adjustment based on zoomLevel
+  let rangeOffset = 1000;
+  if (zoomLevel === 'close') rangeOffset = 0;
+  else if (zoomLevel === 'far') rangeOffset = 5000;
+
   // 3. Perform the requested action.
   if (shouldCreateMarkers) {
     // Create markers and update the global state. The App component will
@@ -374,11 +382,13 @@ const frameLocations: ToolImplementation = async (args, context) => {
       showLabel: true,
     }));
 
-    const { setMarkers, setPreventAutoFrame } = useMapStore.getState();
+    const { setMarkers, setPreventAutoFrame, setFramingOffset } = useMapStore.getState();
+    // Update framing offset based on zoomLevel
+    setFramingOffset(rangeOffset);
     setPreventAutoFrame(false); // Ensure auto-framing is enabled
     setMarkers(markersToSet);
 
-    return `Framed and added markers for ${markersToSet.length} locations.`;
+    return `Framed and added markers for ${markersToSet.length} locations at ${zoomLevel} zoom.`;
   } else {
     // No markers requested. Clear existing markers and manually fly the camera.
     if (!elevationLib) {
@@ -401,13 +411,13 @@ const frameLocations: ToolImplementation = async (args, context) => {
         lng: cameraProps.lng,
         altitude: cameraProps.altitude,
       },
-      range: cameraProps.range + 1000,
+      range: cameraProps.range + rangeOffset,
       heading: cameraProps.heading,
       tilt: cameraProps.tilt,
       roll: 0,
     });
 
-    return `Framed ${locationsWithLabels.length} locations on the map.`;
+    return `Framed ${locationsWithLabels.length} locations on the map at ${zoomLevel} zoom.`;
   }
 };
 
