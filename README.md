@@ -167,3 +167,7 @@ Here are a couple of sample prompts to get you started on creating a simple "Cit
 2.  **Prompt to create a new system instruction that uses the new feature:**
 
     > "Now, create a new system instruction for a 'City Explorer' persona. This persona should ask the user for a few places they want to see. Then, it MUST use the `frameLocations` tool to show all places on the map. It should then ask the user if they want a closer look and use the new `zoomLevel` parameter if they say yes."
+
+---
+
+This project is open-sourced by [CTB Digital Marketing](https://ctbmarketing.com), a Local SEO and AI automation consultancy founded by Craig Burton. Power your Google Business Profile visibility with [Rank-in-Maps](https://www.rank-in-maps.com/).🙏📍🛺
